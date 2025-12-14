@@ -1,0 +1,82 @@
+let elList = document.querySelector(".list")
+let elMessageForm = document.querySelector(".message-form")
+let elChooseImgInp = document.querySelector(".img-inp")
+
+let messageList = get("messages") || []
+
+let date = new Date()
+
+
+// Storage save started
+function set(key, value){
+    localStorage.setItem(key, typeof value == "object" ? JSON.stringify(value) : value)
+}
+
+function get(key){
+    try{
+        const result = JSON.parse(localStorage.getItem(key))
+        return result
+    }
+    catch{
+        return localStorage.getItem(key)
+    }
+}
+set("messages", messageList)
+// Storage save finished
+
+// Render messages started
+function renderMessage(arr, list){
+    list.innerHTML = null
+    arr.forEach(item => {
+        let elItem = document.createElement("li")
+        list.appendChild(elItem)
+        if(item.image) {
+            elItem.outerHTML = `
+                <li class="bg-[#0088cc] relative message-item ml-auto text-white text-[16px] text-shadow-md p-2 w-[80%] rounded-tl-[18px] rounded-bl-[18px] rounded-tr-[15px]">
+                    <img class="w-full rounded-[18px]" src="${item.image}" alt="Nature image">
+                    <p class="mt-[5px]">${item.content}</p>
+                    <div class="text-end text-[13px]">
+                        <span>${item.createdAt}</span>
+                    </div>
+                </li>
+            `
+        }
+        else {
+            elItem.outerHTML = `
+            <li class="bg-[#0088cc] relative message-item ml-auto text-white text-[16px] text-shadow-md p-2 w-[80%] rounded-tl-[18px] rounded-bl-[18px] rounded-tr-[15px]">
+                <p>${item.content}</p>
+                <div class="text-end text-[13px]">
+                    <span>${item.createdAt}</span>
+                </div>
+            </li>
+        `
+        }
+    })
+}
+renderMessage(messageList, elList)
+// Render messages dinished
+
+// Choose img part started
+let imgUrl
+elChooseImgInp.addEventListener("change",  event => {
+    imgUrl = (URL.createObjectURL(event.target.files[0]));
+})
+// Choose img part finished
+
+// Submit message started
+elMessageForm.addEventListener("submit", event => {
+    event.preventDefault()
+    const time = `${date.toString().split(" ")[4].split(":")[0]}:${date.toString().split(" ")[4].split(":")[1]}`
+    const data = {
+        id: messageList[messageList.length - 1]?.id ? messageList[messageList.length - 1]?.id + 1 : 1,
+        image:imgUrl,
+        content:event.target.message.value,
+        createdAt:time,
+    }
+    messageList.push(data)
+    renderMessage(messageList, elList)
+    set("messages", messageList)
+    imgUrl = null
+    event.target.reset()
+})
+// Submit message finished
