@@ -1,6 +1,8 @@
 let elList = document.querySelector(".list")
 let elMessageForm = document.querySelector(".message-form")
 let elChooseImgInp = document.querySelector(".img-inp")
+let elMicBtn = document.querySelector(".mic-btn")
+let elMessageInp = document.querySelector(".message-inp")
 
 let messageList = get("messages") || []
 
@@ -41,6 +43,11 @@ function renderMessage(arr, list){
                 </li>
             `
         }
+        else if(item.voiceRecord){
+            elItem.outerHTML = `
+                <audio class="ml-auto" src="${item.voiceRecord}" id="audio" controls></audio>
+            `
+        }
         else {
             elItem.outerHTML = `
             <li class="bg-[#0088cc] relative message-item ml-auto text-white text-[16px] text-shadow-md p-2 w-[80%] rounded-tl-[18px] rounded-bl-[18px] rounded-tr-[15px]">
@@ -63,6 +70,33 @@ elChooseImgInp.addEventListener("change",  event => {
 })
 // Choose img part finished
 
+// Voice Record Start
+let mediaRecorder;
+let audioChunks = [];
+let audioURL;
+elMicBtn.addEventListener("pointerdown", async () => {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+    mediaRecorder = new MediaRecorder(stream);
+    audioChunks = [];
+    mediaRecorder.start();
+
+    mediaRecorder.ondataavailable = (e) => {
+        audioChunks.push(e.data);
+    };
+});
+
+elMicBtn.addEventListener("pointerup", () => {
+    mediaRecorder.stop();
+
+    mediaRecorder.onstop = () => {
+        const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
+        audioURL = URL.createObjectURL(audioBlob);
+    };
+});
+
+// Voice Record Finished
+
 // Submit message started
 elMessageForm.addEventListener("submit", event => {
     event.preventDefault()
@@ -72,11 +106,14 @@ elMessageForm.addEventListener("submit", event => {
         image:imgUrl,
         content:event.target.message.value,
         createdAt:time,
+        voiceRecord: audioURL
     }
     messageList.push(data)
     renderMessage(messageList, elList)
     set("messages", messageList)
     imgUrl = null
     event.target.reset()
+    audioURL = null
 })
 // Submit message finished
+

@@ -9,22 +9,25 @@
 </head>
 <body>
 
-    <div class="wrapper relative">
-        <ul class="list p-2 pr-[20px] gap-[10px] relative h-[100%] flex flex-col justify-end pb-[90px]">
+    <div class="wrapper relative h-[100vh]">
+        <ul class="list p-2 pr-[20px] gap-[10px] relative h-[90vh] overflow-y-auto space-y-[10px]">
             
             
         </ul>
         <form class="message-form absolute bottom-[10px] w-full" autocomplete="off">
             <div class="bg-white rounded-[25px] w-full ">
-                <input name="message" class="message-inp w-[83%] p-3 text-[18px] outline-none" type="text" placeholder="Message">
+                <input name="message" class="message-inp w-[78%] p-3 text-[18px] outline-none" type="text" placeholder="Message">
             </div>
             <div class="absolute right-[10px] bottom-[10px] flex items-center gap-[20px]">
                 <label>
                     <input class="img-inp hidden" type="file">
                     <img class="cursor-pointer" src="./images/clip.svg" alt="Clip Icon" width="30" height="30">
                 </label>
-                <button type="submit">
-                    <img src="./images/telegram.svg" alt="Telegram Icon" width="30" height="30">
+                <button type="button" class="mic-btn cursor-pointer">
+                    <img src="./images/mic.svg" alt="Icon" width="30" height="30">
+                </button>
+                <button type="submit" class="cursor-pointer">
+                    <img src="./images/telegram.svg" alt="Icon" width="30" height="30">
                 </button>
             </div>
         </form>
