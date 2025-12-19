@@ -2,6 +2,7 @@ let elList = document.querySelector(".list")
 let elMessageForm = document.querySelector(".message-form")
 let elChooseImgInp = document.querySelector(".img-inp")
 let elMicBtn = document.querySelector(".mic-btn")
+let elCamBtn = document.querySelector(".cam-btn")
 let elMessageInp = document.querySelector(".message-inp")
 
 let messageList = get("messages") || []
@@ -46,6 +47,11 @@ function renderMessage(arr, list){
         else if(item.voiceRecord){
             elItem.outerHTML = `
                 <audio class="ml-auto" src="${item.voiceRecord}" id="audio" controls></audio>
+            `
+        }
+        else if(item.videoRecord){
+            elItem.outerHTML = `
+                <video class="ml-auto rounded-[30px]" src="${item.videoRecord}" controls></video>
             `
         }
         else {
@@ -97,6 +103,33 @@ elMicBtn.addEventListener("pointerup", () => {
 
 // Voice Record Finished
 
+// Camera Record Start
+let mediaRecorder2;
+let videoChunks = [];
+let videoURL;
+elCamBtn.addEventListener("pointerdown", async () => {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+
+    mediaRecorder2 = new MediaRecorder(stream);
+    videoChunks = [];
+    mediaRecorder2.start();
+
+    mediaRecorder2.ondataavailable = (e) => {
+        videoChunks.push(e.data);
+    };
+});
+
+elCamBtn.addEventListener("pointerup", () => {
+    mediaRecorder2.stop();
+
+    mediaRecorder2.onstop = () => {
+        const videoBlob = new Blob(videoChunks, { type: "video/webm" });
+        videoURL = URL.createObjectURL(videoBlob);
+    };
+});
+
+// Camera Record Finished
+
 // Submit message started
 elMessageForm.addEventListener("submit", event => {
     event.preventDefault()
@@ -106,7 +139,8 @@ elMessageForm.addEventListener("submit", event => {
         image:imgUrl,
         content:event.target.message.value,
         createdAt:time,
-        voiceRecord: audioURL
+        voiceRecord: audioURL,
+        videoRecord: videoURL
     }
     messageList.push(data)
     renderMessage(messageList, elList)
@@ -114,6 +148,7 @@ elMessageForm.addEventListener("submit", event => {
     imgUrl = null
     event.target.reset()
     audioURL = null
+    videoURL = null
 })
 // Submit message finished
 
